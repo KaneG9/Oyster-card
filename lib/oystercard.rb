@@ -10,7 +10,7 @@ class Oystercard
   end
 
   def top_up(money)
-    raise "Error: New balance over £#{MAX_VALUE}." if (@balance + money) > MAX_VALUE
+    raise "Error: New balance over £#{MAX_VALUE}." if total(money) > MAX_VALUE
     @balance += money
   end
 
@@ -33,5 +33,9 @@ class Oystercard
   private
   def deduct(fare)
     @balance -= fare
+  end
+
+  def total(amount)
+    @balance + amount
   end
 end
