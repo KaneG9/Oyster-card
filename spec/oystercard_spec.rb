@@ -1,11 +1,14 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:station)  { double :station }
+  let(:entry_station)  { double :station }
   let(:top_up_and_touch_in) do 
     subject.top_up(10)
-    subject.touch_in(station)
+    subject.touch_in(entry_station)
   end
+  let(:history) { subject.history }
+  let(:exit_station) { double :station }
+
 
   it "card has balance of 0 at start" do
     expect(subject.balance).to eq 0
@@ -28,33 +31,45 @@ describe Oystercard do
     end
 
     it "Prevents you touching in below minimum value" do
-      expect { subject.touch_in(station) }.to raise_error("Error: Not enough money.")
+      expect { subject.touch_in(entry_station) }.to raise_error("Error: Not enough money.")
     end
   end
   
   context "#touch_out" do
     it "ends journey when you touch out" do
       top_up_and_touch_in
-      subject.touch_out
+      subject.touch_out(exit_station)
       expect(subject).not_to be_in_journey
     end
 
     it "charges min fare on touch_out" do
       top_up_and_touch_in
-      expect { subject.touch_out }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
+      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
   end
 
   context "#entry_station" do
     it "remembers the entry station after the touch in" do
       top_up_and_touch_in
-      expect(subject.entry_station).to eq station
+      expect(subject.entry_station).to eq entry_station
     end
 
     it "forgets the entry station after touch out" do
       top_up_and_touch_in
-      subject.touch_out
+      subject.touch_out(exit_station)
       expect(subject.entry_station).to eq nil
+    end
+  end
+
+  context "Journey history" do
+    it "Card has empty list of journeys as default" do 
+      expect(history).to eq []
+    end
+
+    it "touch in and touch out creates a journey" do
+      top_up_and_touch_in
+      subject.touch_out(exit_station)
+      expect(history).to eq [{entry_station => exit_station}]
     end
   end
 end
