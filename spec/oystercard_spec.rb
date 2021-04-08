@@ -8,7 +8,8 @@ describe Oystercard do
   let(:exit_station) { double :station }
 
   let(:touch_out) do
-    allow(Journey).to_receive(:log).and_return({ :start_station => entry_station, :finish_station => exit_station })
+    allow_any_instance_of(Journey).to receive(:log).and_return({ :start_station => entry_station, :finish_station => exit_station })
+    subject.touch_out(exit_station)
   end
 
   it "card has balance of 0 at start" do
@@ -36,6 +37,12 @@ describe Oystercard do
     it "Prevents you touching in below minimum value" do
       expect { subject.touch_in(entry_station) }.to raise_error("Error: Not enough money.")
     end
+
+    it "Fine card if previous journey was not touched out" do
+      top_up
+      touch_in
+      expect { subject.touch_in(entry_station) }.to change { subject.balance }.by (-Oystercard::PENALTY_FARE)
+    end
   end
   
   context "#touch_out" do
@@ -51,6 +58,12 @@ describe Oystercard do
       touch_in
       expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
+
+    it "Fine card if journey was not touched in" do
+      top_up
+      touch_out
+      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::PENALTY_FARE)
+    end
   end
 
   context "Journey history" do
@@ -61,8 +74,9 @@ describe Oystercard do
     it "touch in and touch out creates a journey" do
       top_up
       touch_in
-      subject.touch_out(exit_station)
+      touch_out
       expect(history).to eq([{ :start_station => entry_station, :finish_station => exit_station }])
     end
   end
+
 end
