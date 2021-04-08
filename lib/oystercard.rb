@@ -8,7 +8,6 @@ class Oystercard
     @balance = balance
     @entry_station = entry_station
     @history = history
-   
   end
 
   def top_up(money)

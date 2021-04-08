@@ -1,6 +1,8 @@
 require 'station'
+
 describe Station do
-let(:subject) { Station.new(3, "Victoria") }
+  let(:subject) { Station.new(3, "Victoria") }
+
   it 'recognise the zone' do
     expect(subject.zone).to eq(3)
   end

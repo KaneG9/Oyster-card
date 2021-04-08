@@ -9,10 +9,10 @@ describe Oystercard do
   let(:history) { subject.history }
   let(:exit_station) { double :station }
 
-
   it "card has balance of 0 at start" do
     expect(subject.balance).to eq 0
   end
+
   context "#top_up" do 
     it "adds money to balance" do
       expect { subject.top_up(10) }.to change { subject.balance }.by 10
@@ -69,7 +69,7 @@ describe Oystercard do
     it "touch in and touch out creates a journey" do
       top_up_and_touch_in
       subject.touch_out(exit_station)
-      expect(history).to eq [{entry_station => exit_station}]
+      expect(history).to eq [{ entry_station => exit_station }]
     end
   end
 end
