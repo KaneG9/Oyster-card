@@ -1,7 +1,7 @@
 require_relative 'journey'
 
 class Oystercard
-  attr_reader :balance, :entry_station, :history
+  attr_reader :balance, :history
   DEFAULT_VALUE = 0
   MAX_VALUE = 90
   MINIMUM_FARE = 1
