@@ -4,10 +4,10 @@ class Oystercard
   MAX_VALUE = 90
   MINIMUM_FARE = 1
 
-  def initialize(balance = DEFAULT_VALUE, entry_station = nil, history = [])
+  def initialize(balance = DEFAULT_VALUE, history = [])
     @balance = balance
-    @entry_station = entry_station
     @history = history
+    @currnet_journey = nil
   end
 
   def top_up(money)
@@ -17,17 +17,18 @@ class Oystercard
 
   def touch_in(station)
     raise "Error: Not enough money." if @balance < MINIMUM_FARE
-    @entry_station = station
+    @currnet_journey = Journey.new(station)
   end
 
   def touch_out(exit_station)
     deduct(MINIMUM_FARE)
-    add_to_history(exit_station)
-    @entry_station = nil
+    @currnet_journey.add_exit(exit_station)
+    add_to_history
+    @currnet_journey = nil
   end
 
   def in_journey?
-    @entry_station != nil
+    @currnet_journey != nil
   end
   
   private
@@ -39,7 +40,7 @@ class Oystercard
     @balance + amount
   end
 
-  def add_to_history(exit_station)
-    @history << { @entry_station => exit_station }
+  def add_to_history
+    @history << @currnet_journey.journey
   end
 end
