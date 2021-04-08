@@ -28,7 +28,7 @@ class Oystercard
     unless in_journey?
       penalty
     else
-      deduct(MINIMUM_FARE)
+      deduct(@current_journey.fare)
       end_journey(exit_station)
     end
   end

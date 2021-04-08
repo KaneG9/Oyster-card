@@ -8,7 +8,9 @@ describe Oystercard do
   let(:exit_station) { double :station }
 
   let(:touch_out) do
-    allow_any_instance_of(Journey).to receive(:log).and_return({ :start_station => entry_station, :finish_station => exit_station })
+    allow_any_instance_of(Journey).to receive(:log)
+    .and_return({ :start_station => entry_station, :finish_station => exit_station })
+    allow_any_instance_of(Journey).to receive(:fare).and_return Oystercard::MINIMUM_FARE
     subject.touch_out(exit_station)
   end
 
@@ -49,14 +51,14 @@ describe Oystercard do
     it "ends journey when you touch out" do
       top_up
       touch_in
-      subject.touch_out(exit_station)
+      touch_out
       expect(subject).not_to be_in_journey
     end
 
     it "charges min fare on touch_out" do
       top_up
       touch_in
-      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
+      expect { touch_out }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
 
     it "Fine card if journey was not touched in" do
@@ -78,5 +80,8 @@ describe Oystercard do
       expect(history).to eq([{ :start_station => entry_station, :finish_station => exit_station }])
     end
   end
+
+
+  
 
 end
