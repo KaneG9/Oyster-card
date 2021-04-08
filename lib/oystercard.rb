@@ -20,18 +20,16 @@ class Oystercard
 
   def touch_in(station)
     raise "Error: Not enough money." if @balance < MINIMUM_FARE
-    @balance -= PENALTY_FARE if @current_journey != nil
+    penalty if in_journey?
     @current_journey = Journey.new(station)
   end
 
   def touch_out(exit_station)
-    if @current_journey == nil
-      @balance -= PENALTY_FARE
+    unless in_journey?
+      penalty
     else
       deduct(MINIMUM_FARE)
-      @current_journey.add_exit(exit_station)
-      add_to_history
-      @current_journey = nil
+      end_journey(exit_station)
     end
   end
 
@@ -50,5 +48,15 @@ class Oystercard
 
   def add_to_history
     @history << @current_journey.log
+  end
+
+  def penalty
+    @balance -= PENALTY_FARE
+  end
+
+  def end_journey(exit_station)
+    @current_journey.add_exit(exit_station)
+    add_to_history
+    @current_journey = nil
   end
 end
