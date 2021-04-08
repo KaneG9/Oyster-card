@@ -7,6 +7,10 @@ describe Oystercard do
   let(:history) { subject.history }
   let(:exit_station) { double :station }
 
+  let(:touch_out) do
+    allow(Journey).to_receive(:log).and_return({ :start_station => entry_station, :finish_station => exit_station })
+  end
+
   it "card has balance of 0 at start" do
     expect(subject.balance).to eq 0
   end
@@ -58,7 +62,7 @@ describe Oystercard do
       top_up
       touch_in
       subject.touch_out(exit_station)
-      expect(history).to eq [{ entry_station => exit_station }]
+      expect(history).to eq([{ :start_station => entry_station, :finish_station => exit_station }])
     end
   end
 end

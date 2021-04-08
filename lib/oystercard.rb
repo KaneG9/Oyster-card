@@ -1,3 +1,5 @@
+require_relative 'journey'
+
 class Oystercard
   attr_reader :balance, :entry_station, :history
   DEFAULT_VALUE = 0
@@ -7,7 +9,7 @@ class Oystercard
   def initialize(balance = DEFAULT_VALUE, history = [])
     @balance = balance
     @history = history
-    @currnet_journey = nil
+    @current_journey = nil
   end
 
   def top_up(money)
@@ -17,18 +19,18 @@ class Oystercard
 
   def touch_in(station)
     raise "Error: Not enough money." if @balance < MINIMUM_FARE
-    @currnet_journey = Journey.new(station)
+    @current_journey = Journey.new(station)
   end
 
   def touch_out(exit_station)
     deduct(MINIMUM_FARE)
-    @currnet_journey.add_exit(exit_station)
+    @current_journey.add_exit(exit_station)
     add_to_history
-    @currnet_journey = nil
+    @current_journey = nil
   end
 
   def in_journey?
-    @currnet_journey != nil
+    @current_journey != nil
   end
   
   private
@@ -41,6 +43,6 @@ class Oystercard
   end
 
   def add_to_history
-    @history << @currnet_journey.journey
+    @history << @current_journey.log
   end
 end
