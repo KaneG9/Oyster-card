@@ -9,9 +9,10 @@ describe Journey do
     expect(subject.entry_station).to eq entry_station
   end
 
-  it "Create a journey hash via add_exit" do
-    j = Journey.new(entry_station)
-    j.add_exit(exit_station)
-    expect(j.journey).to eq({ entry_station => exit_station })
+  describe '#add_exit' do
+    it "Create a journey hash via add_exit" do
+      subject.add_exit(exit_station)
+      expect(subject.journey).to eq({ entry_station => exit_station })
+    end
   end
 end
