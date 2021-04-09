@@ -4,7 +4,7 @@ class Journey
   attr_reader :log
 
   def initialize(entry_station = nil)
-    @log = {:start_station => entry_station}
+    @log = {:start_station => entry_station, :finish_station => nil}
   end
 
   def add_exit(exit_station)
@@ -12,7 +12,12 @@ class Journey
   end 
 
   def fare
-    Oystercard::MINIMUM_FARE
+    completed? ?  Oystercard::MINIMUM_FARE :  Oystercard::PENALTY_FARE
+  end
+
+  private
+  def completed?
+    @log[:start_station] != nil && @log[:finish_station] != nil
   end
 
 end

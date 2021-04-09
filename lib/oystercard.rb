@@ -1,7 +1,7 @@
 require_relative 'journey'
 
 class Oystercard
-  attr_reader :balance, :history
+  attr_reader :balance, :history, :current_journey
   DEFAULT_VALUE = 0
   MAX_VALUE = 90
   MINIMUM_FARE = 1
@@ -18,19 +18,15 @@ class Oystercard
     @balance += money
   end
 
-  def touch_in(station)
+  def touch_in(station = nil)
     raise "Error: Not enough money." if @balance < MINIMUM_FARE
     penalty if in_journey?
     @current_journey = Journey.new(station)
   end
 
   def touch_out(exit_station)
-    unless in_journey?
-      penalty
-    else
-      deduct(@current_journey.fare)
-      end_journey(exit_station)
-    end
+    touch_in if @current_journey == nil
+    end_journey(exit_station)
   end
 
   def in_journey?
@@ -51,11 +47,12 @@ class Oystercard
   end
 
   def penalty
-    @balance -= PENALTY_FARE
+    deduct(@current_journey.fare) 
   end
 
   def end_journey(exit_station)
     @current_journey.add_exit(exit_station)
+    deduct(@current_journey.fare)
     add_to_history
     @current_journey = nil
   end
