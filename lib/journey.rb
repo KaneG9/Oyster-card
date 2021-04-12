@@ -15,7 +15,6 @@ class Journey
     completed? ?  Oystercard::MINIMUM_FARE :  Oystercard::PENALTY_FARE
   end
 
-  private
   def completed?
     @log[:start_station] != nil && @log[:finish_station] != nil
   end

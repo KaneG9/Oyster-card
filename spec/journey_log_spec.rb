@@ -1,14 +1,12 @@
 require 'journey_log'
 
 describe JourneyLog do
+  let(:journey_double) { double :journey }
+  let(:subject) { JourneyLog.new(journey_double) }
   let(:start_station) { double('start station') }
   let(:end_station) { double('end station') }
-
-  describe '#initialize' do
-    it 'creates journey_class' do
-      expect(subject.journey_class).to eq(Journey)
-    end
-  end
+  before { allow(journey_double).to receive(:new).and_return(journey_double) }
+ 
 
   describe '#start' do
     it 'starts a new journey with an entry station' do
@@ -16,29 +14,51 @@ describe JourneyLog do
     end
 
     it 'adds an entry station to current journey' do
+      expect(journey_double).to receive(:new).with(start_station)
       subject.start(start_station)
-      expect(subject.journey.log[:start_station]).to eq(start_station) 
+    end
+
+    it "adds journey to log if previous journey not finished" do
+      allow(journey_double).to receive(:completed?).and_return(false)
+      subject.start(start_station)
+      subject.start(start_station)
+      expect(subject.journeys.last).to eq journey_double
     end
   end
 
   describe '#finish' do
+    before { allow(journey_double).to receive(:add_exit) }
     it 'finished a journey with an exit station' do
       expect(subject).to respond_to(:finish).with(1).argument
     end
 
     it 'adds an exit station to current journey' do
+      expect(journey_double).to receive(:add_exit).with(end_station)
       subject.start(start_station)
       subject.finish(end_station)
-      expect(subject.journey.log[:finish_station]).to eq(end_station) 
     end
 
-    # it 'creates new journey if not started' do
-    #   subject.finish(end_station)
-    #   expected_journey = { 
-    #     entry_station: nil,
-    #     exit_station: end_station
-    #   }
-    #   expect(subject.journey).to eq(expected_journey)
-    # end
+    it "adds current_journey to journeys list" do
+      subject.start(start_station)
+      subject.finish(end_station)
+      expect(subject.journeys.last).to eq journey_double
+    end
+
+    it "finish creates new journey if journey hasnt been started" do
+      expect(journey_double).to receive(:new)
+      subject.finish(end_station)
+    end
   end
+
+  describe '#in_journey?' do
+    it "in journey initailly false" do
+      expect(subject.in_journey?).to be false
+    end
+
+    it "in journey true after start" do
+      subject.start(start_station)
+      expect(subject.in_journey?).to be true
+    end
+  end
+
 end

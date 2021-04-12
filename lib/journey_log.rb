@@ -3,22 +3,32 @@ require_relative 'journey'
 class JourneyLog
   attr_reader :journey_class, :journey
 
-  def initialize
-    @journey_class = Journey
-    @journey
+  def initialize(journey_class = Journey)
+    @journey_class = journey_class
+    @journey_history = []
   end
 
   def start(station)
+    @journey_history << @journey unless @journey == nil || @journey.completed?
     @journey = @journey_class.new(station)
   end
 
   def finish(station)
-    @journey.add_exit(station)
+    current_journey.add_exit(station)
+    @journey_history << @journey
   end
 
-  # private
+  def journeys
+    @journey_history.clone
+  end
 
-  # def current_journey
-  #   if @journey
-  # end
+  def in_journey?
+    @journey != nil
+  end
+
+  private
+
+  def current_journey
+    @journey ||= @journey_class.new
+  end
 end

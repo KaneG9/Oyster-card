@@ -1,6 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:journey_log_double) { double :journey_log }
+  subject { Oystercard.new(Oystercard::DEFAULT_VALUE, journey_log = journey_log_double)}
   let(:entry_station)  { double :station }
   let(:top_up) { subject.top_up(10) }
   let(:touch_in) { subject.touch_in(entry_station) }
@@ -12,6 +14,7 @@ describe Oystercard do
     allow_any_instance_of(Journey).to receive(:fare).and_return Oystercard::MINIMUM_FARE
     subject.touch_out(exit_station)
   end
+  let(:journey_double) { double :journey }
 
   it "card has balance of 0 at start" do
     expect(subject.balance).to eq 0
@@ -29,10 +32,10 @@ describe Oystercard do
   end
 
   context "#touch_in" do
-    it "starts journey when you touch in" do
-      top_up
-      touch_in
-      expect(subject).to be_in_journey
+    before do
+      allow(journey_log_double).to receive(:in_journey?).and_return(false) 
+      allow(journey_log_double).to receive(:start)
+      allow(journey_log_double).to receive(:journey).and_return(journey_double)
     end
 
     it "Prevents you touching in below minimum value" do
@@ -40,7 +43,8 @@ describe Oystercard do
     end
 
     it "Fine card if previous journey was not touched out" do
-      allow_any_instance_of(Journey).to receive(:fare).and_return Oystercard::PENALTY_FARE 
+      allow(journey_log_double).to receive(:in_journey?).and_return(true)
+      allow(journey_double).to receive(:fare).and_return(Oystercard::PENALTY_FARE)
       top_up
       touch_in
       expect { subject.touch_in(entry_station) }.to change { subject.balance }.by (-Oystercard::PENALTY_FARE)
@@ -48,41 +52,25 @@ describe Oystercard do
   end
   
   context "#touch_out" do
-    it "ends journey when you touch out" do
-      top_up
-      touch_in
-      clean_touch_out
-      expect(subject).not_to be_in_journey
+    before do
+      allow(journey_log_double).to receive(:in_journey?).and_return(true) 
+      allow(journey_log_double).to receive(:start)
+      allow(journey_log_double).to receive(:finish)
+      allow(journey_log_double).to receive(:journey).and_return(journey_double)
     end
 
     it "charges min fare on touch_out if completed journey" do
+      allow(journey_double).to receive(:fare).and_return(Oystercard::MINIMUM_FARE)
       top_up
       touch_in
       expect { clean_touch_out }.to change { subject.balance }.by(-Oystercard::MINIMUM_FARE)
     end
 
     it "Fine card if journey was not touched in" do
+      allow(journey_double).to receive(:fare).and_return(Oystercard::PENALTY_FARE)
       top_up
       subject.touch_out(exit_station)
       expect { subject.touch_out(exit_station) }.to change { subject.balance }.by(-Oystercard::PENALTY_FARE)
     end
   end
-
-  context "Journey history" do
-    it "Card has empty list of journeys as default" do 
-      expect(history).to eq []
-    end
-
-    it "touch in and touch out creates a journey" do
-      top_up
-      touch_in
-      clean_touch_out
-      expect(history).to eq([{ :start_station => entry_station, :finish_station => exit_station }])
-    end
-  end
-
-
-
-
-
 end
