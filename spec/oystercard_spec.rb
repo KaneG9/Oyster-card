@@ -8,12 +8,7 @@ describe Oystercard do
   let(:touch_in) { subject.touch_in(entry_station) }
   let(:history) { subject.history }
   let(:exit_station) { double :station }
-  let(:clean_touch_out) do
-    allow_any_instance_of(Journey).to receive(:log)
-    .and_return({ :start_station => entry_station, :finish_station => exit_station })
-    allow_any_instance_of(Journey).to receive(:fare).and_return Oystercard::MINIMUM_FARE
-    subject.touch_out(exit_station)
-  end
+  let(:clean_touch_out) { subject.touch_out(exit_station) }
   let(:journey_double) { double :journey }
 
   it "card has balance of 0 at start" do
