@@ -1,5 +1,7 @@
 require_relative 'journey'
 
+require_relative "journey_log"
+
 class Oystercard
   attr_reader :balance, :history, :current_journey
   DEFAULT_VALUE = 0
@@ -24,7 +26,7 @@ class Oystercard
   end
 
   def touch_out(exit_station)
-    touch_in if current_journey == nil
+    touch_in unless in_journey?
     @journey_log.finish(exit_station)
     deduct(current_journey.fare)
   end

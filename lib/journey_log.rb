@@ -23,7 +23,8 @@ class JourneyLog
   end
 
   def in_journey?
-    @journey != nil
+    return false if journey == nil
+    !@journey.completed?
   end
 
   private

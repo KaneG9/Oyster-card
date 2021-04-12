@@ -34,4 +34,23 @@ describe Journey do
     end
   end
 
+  describe '#completed?' do
+    it "false if no exit station" do
+      expect(subject.completed?).to eq false
+    end
+
+    it "false if no entry station" do
+      j = Journey.new
+      j.add_exit(exit_station)
+      expect(j.completed?).to eq false
+    end
+
+    it "true if exit and entry station" do
+      subject.add_exit(exit_station)
+      expect(subject.completed?).to eq true
+    end
+
+  end
+
+
 end

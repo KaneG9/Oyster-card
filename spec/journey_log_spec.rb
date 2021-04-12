@@ -49,16 +49,4 @@ describe JourneyLog do
       subject.finish(end_station)
     end
   end
-
-  describe '#in_journey?' do
-    it "in journey initailly false" do
-      expect(subject.in_journey?).to be false
-    end
-
-    it "in journey true after start" do
-      subject.start(start_station)
-      expect(subject.in_journey?).to be true
-    end
-  end
-
 end
